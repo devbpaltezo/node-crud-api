@@ -1,12 +1,29 @@
 var mysql = require('mysql');
+const config = require('../config');
 
-var con = mysql.createConnection({
-  host: "localhost",
-  user: "yourusername",
-  password: "yourpassword"
-});
+var db = require('mysql2-promise')();
 
-con.connect(function(err) {
-  if (err) throw err;
-  console.log("Connected!");
-});
+const query = async (sql, params) => {
+
+  await db.configure(config.db);
+  const results = await db.query(sql).spread(function (data) {
+    return data
+  });
+
+  return results;
+}
+
+const exec = async (sql, params, debug = false) => {
+
+  await db.configure(config.db);
+  const results = await db.execute(sql, params).spread(function (data) {
+    return data
+  });
+
+  return results;
+}
+
+module.exports = {
+  query,
+  exec
+}
