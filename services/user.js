@@ -10,7 +10,7 @@ const getAll = async (req, res, next) => {
     );
 
     if(!rows){
-      res.send({status: 200, message: 'success', data: []})
+      res.send({status: 500, message: 'failure', data: []})
       return
     }
 
@@ -19,6 +19,7 @@ const getAll = async (req, res, next) => {
 
 
   }catch(err){
+    res.send({status: 500, message: 'failure', data: []})
     throw(err)
   }
 }
@@ -46,7 +47,7 @@ const create = async (req, res) => {
     ])
 
     if(!query){
-      res.send({status: 200, message: 'failure', data: query})
+      res.send({status: 500, message: 'failure', data: query})
       return
     }
 
@@ -54,18 +55,17 @@ const create = async (req, res) => {
     return
 
   }catch(err){
-    res.send({status: 200, message: 'failure', error: err})
+    res.send({status: 500, message: 'failure', error: err})
   }
 }
 
 const read = async (req, res, next) => {
   try{
 
-    console.log(req.params)
     const query = await db.exec(`SELECT * FROM users WHERE id = ?`, [req.params.id])
 
     if(!query){
-      res.send({status: 200, message: 'failure', data: query})
+      res.send({status: 500, message: 'failure', data: query})
       return
     }
 
@@ -73,45 +73,31 @@ const read = async (req, res, next) => {
     return
 
   }catch(err){
-    res.send({status: 200, message: 'failure', error: err})
+    res.send({status: 500, message: 'failure', error: err})
     throw(err)
   }
 }
 
+
 const update = async (req, res) => {
   try{
 
+    let queryParams = []
+    let updateSet = ""
 
-    const {firstName, lastName, address, postCode, contact, email, username, password} = req.body
+    //PARSING REQ BODY DATA & GENERATING MYSQL QUERY
+    Object.keys(req.body).map((key, index) => {
+      
+      let camelCase = helper.camelToUnderscore(key)      
+      updateSet += `${camelCase} = ? ${(index < Object.keys(req.body).length - 1) ? ',' : ''}`;
+      queryParams.push(req.body[key])
 
-    const query = await db.exec(`
-      UPDATE 
-        users 
-      SET
-        first_name = ?,
-        last_name = ?,
-        address = ?,
-        post_code = ?,
-        contact = ?,
-        email = ?,
-        username = ?,
-        password = ?
-      WHERE
-        id = ?
-      `, [
-        firstName, 
-        lastName, 
-        address, 
-        postCode, 
-        contact, 
-        email, 
-        username, 
-        password,
-        req.params.id
-    ])
+    })
+
+    const query = await db.exec(`UPDATE users SET ${updateSet} WHERE id = ? `, [...queryParams, req.params.id]);
 
     if(!query){
-      res.send({status: 200, message: 'failure', data: query})
+      res.send({status: 500, message: 'failure', data: query})
       return
     }
 
@@ -119,7 +105,7 @@ const update = async (req, res) => {
     return
 
   }catch(err){
-    res.send({status: 200, message: 'failure', errpr: err})
+    res.send({status: 500, message: 'failure', errpr: err})
     throw(err)
   }
 }
@@ -128,14 +114,14 @@ const remove = async (req, res) => {
   try{
     const query = await db.exec(`DELETE FROM users WHERE id = `, [req.params.id])
     if(!query){
-      res.send({status: 200, message: 'failure', data: query})
+      res.send({status: 400, message: 'failure', data: query})
       return
     }
 
     res.send({status: 200, message: 'success', data: query})
     return
   }catch(err){
-    res.send({status: 200, message: 'failure', error: err})
+    res.send({status: 500, message: 'failure', error: err})
     throw(err)
   }
 }
@@ -144,7 +130,7 @@ const bulkDelete = async (req, res) => {
   try{
 
     if(!req.body.ids){
-      res.send({status: 200, message: 'Missing ids payload', data: null})
+      res.send({status: 400, message: 'Missing ids payload', data: null})
       return
     }
 
@@ -152,9 +138,9 @@ const bulkDelete = async (req, res) => {
       return `(?)`
     })?.join(",")
 
-    const query = await db.exec(`DELETE FROM users WHERE id IN (${inArray}) AND username != 'admin'`, req.body.ids, true)
+    const query = await db.exec(`DELETE FROM users WHERE id IN (${inArray}) AND username != 'admin'`, req.body.ids)
     if(!query){
-      res.send({status: 200, message: 'Query failed', data: null})
+      res.send({status: 500, message: 'Query failed', data: null})
       return
     }
 
@@ -166,15 +152,7 @@ const bulkDelete = async (req, res) => {
     res.send({status: 200, message: 'success', data: query})
     return
   }catch(err){
-    res.send({status: 200, message: 'failure', error: err})
-    throw(err)
-  }
-}
-
-const createx = async (req, res, next) => {
-  try{
-
-  }catch(err){
+    res.send({status: 500, message: 'failure', error: err})
     throw(err)
   }
 }

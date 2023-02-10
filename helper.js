@@ -9,7 +9,13 @@ function getOffset(currentPage = 1, listPerPage) {
     return rows;
   }
   
+  function camelToUnderscore(key) {
+    var result = key.replace( /([A-Z])/g, " $1" );
+    return result.split(' ').join('_').toLowerCase();
+  }
+
   module.exports = {
     getOffset,
-    emptyOrRows
+    emptyOrRows,
+    camelToUnderscore
   }

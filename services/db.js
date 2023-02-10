@@ -3,7 +3,11 @@ const config = require('../config');
 
 var db = require('mysql2-promise')();
 
-const query = async (sql, params) => {
+const query = async (sql, params, debug = false) => {
+
+  if(debug){
+    console.log(sql, params)
+  }
 
   await db.configure(config.db);
   const results = await db.query(sql).spread(function (data) {
@@ -14,6 +18,10 @@ const query = async (sql, params) => {
 }
 
 const exec = async (sql, params, debug = false) => {
+
+  if(debug){
+    console.log(sql, params)
+  }
 
   await db.configure(config.db);
   const results = await db.execute(sql, params).spread(function (data) {
