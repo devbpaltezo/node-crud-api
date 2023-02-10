@@ -1,11 +1,12 @@
 const config = {
     db: {
       /* don't expose password or any sensitive info, done only for demo */
-      host: "db4free.net",
-      user: "altezodb",
-      password: "altezodb",
-      database: "altezodb",
+      host: process.env.DB_HOST,
+      user: process.env.DB_USER,
+      password: process.env.DB_PASSWORD,
+      database: process.env.DB_NAME,
     },
     listPerPage: 10,
+    secret: process.env.JWT_SECRET
   };
   module.exports = config;

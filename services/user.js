@@ -143,9 +143,23 @@ const remove = async (req, res) => {
 const bulkDelete = async (req, res) => {
   try{
 
-    const query = await db.exec(`DELETE FROM users WHERE id = `, [req.params.id])
+    if(!req.body.ids){
+      res.send({status: 200, message: 'Missing ids payload', data: null})
+      return
+    }
+
+    let inArray = req.body.ids.map(() => {
+      return `(?)`
+    })?.join(",")
+
+    const query = await db.exec(`DELETE FROM users WHERE id IN (${inArray}) AND username != 'admin'`, req.body.ids, true)
     if(!query){
-      res.send({status: 200, message: 'failure', data: query})
+      res.send({status: 200, message: 'Query failed', data: null})
+      return
+    }
+
+    if(query && query.affectedRows == 0){
+      res.send({status: 200, message: 'No rows affected', data: query})
       return
     }
 
