@@ -8,7 +8,7 @@ REST API using Node JS and MySQL Database
 
 # To clone the repo:
 	```
-	$ git clone test@test.com
+	$ git clone https://github.com/devbpaltezo/node-crud-api.git
 	```
 # To install node modules
 	```
