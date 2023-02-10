@@ -28,7 +28,7 @@ const create = async (req, res) => {
   try{
 
     const {firstName, lastName, address, postCode, contact, email, username, password} = req.body
-
+    const passwordHash = await helper.createHash(password)
     const query = await db.exec(`
       INSERT INTO 
         users 
@@ -43,7 +43,7 @@ const create = async (req, res) => {
         contact, 
         email, 
         username, 
-        password
+        passwordHash
     ])
 
     if(!query){
